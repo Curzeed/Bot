@@ -2,6 +2,7 @@ const {SlashCommandBuilder} = require('@discordjs/builders');
 const mysql = require('mysql');
 const { host, port, user, password, database} = require('../config.json');
 const {rejects} = require("assert");
+const {MessageEmbed} = require("discord.js");
 
 async function membersgdg(callback) {
     let bdd = mysql.createPool({
@@ -48,52 +49,64 @@ module.exports = {
         let points = interaction.options.getNumber('points');
 
         await membersgdg(function(names){
-            if(names.includes(resUser)){
-                let bdd = mysql.createPool({
-                    host : host,
-                    user : user,
-                    password : password,
-                    port : port,
-                    database : database,
-                })
-                let ptsUser;
-                switch(resGuilde) {
-                    case "Garuroku" :
-                        try {
-                            bdd.query('UPDATE Garuroku SET score = score + ? WHERE nom=?', [points, resUser]);
-                            bdd.query('SELECT score FROM Garuroku WHERE nom=?;', [resUser], function (err, rows) {
-                                if (rows === undefined) {
-                                    throw (new Error("Error no row defined"))
-                                } else {
-                                    ptsUser = rows[0].score;
-                                }
-                            })
-                            interaction.reply(`Tu as ajouté ${points} points à ${resUser} \n Il a désormais : ${ptsUser} points ! `)
-                        } catch (error) {
-                            console.log(error.stack)
-                            interaction.reply("Erreur de suppression dans la base de donnée ! ")
-                        }
-                        break;
-                    case "Eclypsea" :
-                        try {
-                            bdd.query('UPDATE Eclypsea SET score = score + ? WHERE nom=?', [points, resUser]);
-                            bdd.query('SELECT score FROM Eclypsea WHERE nom=?;', [resUser], function (err, rows) {
-                                if (rows === undefined) {
-                                    throw (new Error("Error no row defined"))
-                                } else {
-                                     ptsUser = rows[0].score;
-                                }
-                            })
-                            console.log(ptsUser)
-                            interaction.reply(`Tu as ajouté ${points} points à ${resUser} \n Il a désormais : ${ptsUser} points ! `)
-                        } catch (error) {
-                            console.log(error.stack)
-                            interaction.reply("Erreur de suppression dans la base de donnée ! ")
-                        }
-                        break;
+            if (interaction.member.roles.cache.some(role => role.name === 'dev')) {
+                if (names.includes(resUser)) {
+                    let bdd = mysql.createPool({
+                        host: host,
+                        user: user,
+                        password: password,
+                        port: port,
+                        database: database,
+                    })
+                    let ptsUser;
+                    switch (resGuilde) {
+                        case "Garuroku" :
+                            try {
+                                bdd.query('UPDATE Garuroku SET score = score + ? WHERE nom=?', [points, resUser]);
+                                bdd.query('SELECT score FROM Garuroku WHERE nom=?;', [resUser], function (err, rows) {
+                                    if (rows === undefined) {
+                                        throw (new Error("Error no row defined"))
+                                    } else {
+                                        ptsUser = rows[0].score;
+                                    }
+                                })
+                                interaction.reply(`Tu as ajouté ${points} points à ${resUser} \n Il a désormais : ${ptsUser} points ! `)
+                            } catch (error) {
+                                console.log(error.stack)
+                                interaction.reply("Erreur de suppression dans la base de donnée ! ")
+                            }
+                            break;
+                        case "Eclypsea" :
+                            try {
+                                bdd.query('UPDATE Eclypsea SET score = score + ? WHERE nom=?', [points, resUser]);
+                                bdd.query('SELECT score FROM Eclypsea WHERE nom=?;', [resUser], function (err, rows) {
+                                    if (rows === undefined) {
+                                        throw (new Error("Error no row defined"))
+                                    } else {
+                                        ptsUser = rows[0].score;
+                                    }
+                                })
+                                console.log(ptsUser)
+                                interaction.reply(`Tu as ajouté ${points} points à ${resUser} \n Il a désormais : ${ptsUser} points ! `)
+                            } catch (error) {
+                                console.log(error.stack)
+                                interaction.reply("Erreur de suppression dans la base de donnée ! ")
+                            }
+                            break;
+                    }
+                } else {
+                    interaction.reply("Qui est donc ce bougre ?")
+                    return;
                 }
-            }else{
-                interaction.reply("Qui est donc ce bougre ?")
+            } else {
+                const channel = interaction.channel
+                const embed= new MessageEmbed()
+                    .setColor("#800303")
+                    .setTitle("C'est non !")
+                    .setImage("https://img.passeportsante.net/1000x526/2020-01-29/i93384-.jpeg")
+                    .setDescription("Tu n'es pas autorisé à utiliser ça")
+                    .setTimestamp()
+                channel.send({embeds : [embed]});
                 return;
             }
         })

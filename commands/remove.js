@@ -1,6 +1,7 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const mysql = require('mysql');
 const { host, port, user, password, database} = require('../config.json');
+const {MessageEmbed} = require("discord.js");
 
 
 async function membersgdg(callback) {
@@ -46,38 +47,48 @@ module.exports = {
 
         let resGuilde = interaction.options.getString('guilde');
         let resUser = interaction.options.getString('membre').toLowerCase();
-
         await membersgdg (function(names){
-            console.log(names)
-            if(names.includes(resUser)){
-                let bdd = mysql.createPool({
-                    host : host,
-                    user : user,
-                    password : password,
-                    port : port,
-                    database : database,
-                })
-                switch(resGuilde){
-                    case "Garuroku" : try{
-                        bdd.query('DELETE FROM Garuroku WHERE nom = ?',[resUser]);
-                        interaction.reply(`Suppression du membre ${resUser} avec succès ! `)
-                    }catch(error){
-                        console.log(error.stack)
-                        interaction.reply("Erreur de suppression dans la base de donnée ! ")
+
+            if (interaction.member.roles.cache.some(role => role.name === 'dev')) {
+                if(names.includes(resUser)){
+                    let bdd = mysql.createPool({
+                        host : host,
+                        user : user,
+                        password : password,
+                        port : port,
+                        database : database,
+                    })
+                    switch(resGuilde){
+                        case "Garuroku" : try{
+                            bdd.query('DELETE FROM Garuroku WHERE nom = ?',[resUser]);
+                            interaction.reply(`Suppression du membre ${resUser} avec succès ! `)
+                        }catch(error){
+                            console.log(error.stack)
+                            interaction.reply("Erreur de suppression dans la base de donnée ! ")
+                        }
+                            break;
+                        case "Eclypsea" : try{
+                            bdd.query('DELETE FROM Eclypsea WHERE nom = ?',[resUser]);
+                            interaction.reply(`Suppression du membre ${resUser} avec succès ! `)
+                        }catch(error){
+                            console.log(error.stack)
+                            interaction.reply("Erreur de suppression dans la base de donnée ! ")
+                        }
+                            break;
                     }
-                        break;
-                    case "Eclypsea" : try{
-                        bdd.query('DELETE FROM Eclypsea WHERE nom = ?',[resUser]);
-                        interaction.reply(`Suppression du membre ${resUser} avec succès ! `)
-                    }catch(error){
-                        console.log(error.stack)
-                        interaction.reply("Erreur de suppression dans la base de donnée ! ")
-                    }
-                        break;
+                }else{
+                    console.log("Who is this guy ?")
+                    interaction.reply("Qui est donc ce bougre ?")
                 }
             }else{
-                console.log("Who is this guy ?")
-                interaction.reply("Qui est donc ce bougre ?")
+                const channel = interaction.channel
+                const embed= new MessageEmbed()
+                    .setColor("#800303")
+                    .setTitle("C'est non !")
+                    .setImage("https://img.passeportsante.net/1000x526/2020-01-29/i93384-.jpeg")
+                    .setDescription("Tu n'es pas autorisé à utiliser ça")
+                    .setTimestamp()
+                channel.send({embeds : [embed]});
                 return;
             }
         })
