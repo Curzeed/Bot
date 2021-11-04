@@ -3,8 +3,8 @@ const mysql = require('mysql');
 const { host, port, user, password, database} = require('../config.json');
 
 
-async function membersgdg(bddClient, callback) {
-     let bdd = mysql.createPool({
+async function membersgdg(callback) {
+      let bdd = mysql.createPool({
         host : host,
         user : user,
         password : password,
@@ -12,14 +12,27 @@ async function membersgdg(bddClient, callback) {
         database : database,                
     })
 	 names = [];
-	    bdd.query('SELECT nom FROM Eclypsea', (err, res) => {
-		if (err) {
-			console.log(err.stack);
-		} else {
-			result = res.rows;
-			console.log(result);
-		}
-	})
+	   await bdd.query('SELECT * FROM Eclypsea', function (err, result) {
+            // if any error while executing above query, throw error
+            if (err) throw err;
+            // if there is no error, you have the result
+            // iterate for all the rows in result
+            Object.keys(result).forEach(function(key) {
+              var row = result[key];
+              names.push(row.nom);
+            });
+          });
+        await  bdd.query('SELECT * FROM Garuroku', function (err, result) {
+            // if any error while executing above query, throw error
+            if (err) throw err;
+            // if there is no error, you have the result
+            // iterate for all the rows in result
+            Object.keys(result).forEach(function(key) {
+              var row = result[key];
+              names.push(row.nom);
+            });
+            callback(names);
+          })
 }
 
 module.exports = {
@@ -33,32 +46,39 @@ module.exports = {
         
         let resGuilde = interaction.options.getString('guilde');
         let resUser = interaction.options.getString('membre');
-        membersgdg( async function(names){
-        if(!names.includes(resUser)){
-            switch(resGuilde){
-                case "Garuroku" : try{
-                    bdd.query('INSERT INTO Garuroku SET nom = ?',[resUser]);
-                    await interaction.reply(`Ajout du membre ${resUser} avec succès ! `)
-                }catch(error){
-                    console.log(err.stack)
-                    await interaction.reply("Erreur d'insertion dans la base de donnée ! ")
+        await membersgdg (function(names){
+            if(!names.includes(resUser)){
+                let bdd = mysql.createPool({
+                    host : host,
+                    user : user,
+                    password : password,
+                    port : port,
+                    database : database,                
+                })
+                switch(resGuilde){
+                    case "Garuroku" : try{
+                        bdd.query('INSERT INTO Garuroku SET nom = ?',[resUser]);
+                         interaction.reply(`Ajout du membre ${resUser} avec succès ! `)
+                    }catch(error){
+                        console.log(error.stack)
+                         interaction.reply("Erreur d'insertion dans la base de donnée ! ")
+                    }
+                        break;
+                    case "Eclypsea" : try{
+                        bdd.query('INSERT INTO Eclypsea SET nom = ?',[resUser]);
+                         interaction.reply(`Ajout du membre ${resUser} avec succès ! `)
+                    }catch(error){
+                        console.log(error.stack)
+                         interaction.reply("Erreur d'insertion dans la base de donnée ! ")
+                    }
+                        break;
                 }
-                    break;
-                case "Eclypsea" : try{
-                    bdd.query('INSERT INTO Eclypsea SET nom = ?',[resUser]);
-                    await interaction.reply(`Ajout du membre ${resUser} avec succès ! `)
-                }catch(error){
-                    console.log(err.stack)
-                    await interaction.reply("Erreur d'insertion dans la base de donnée ! ")
-                }
-                    break;
+            }else{
+                console.log("User already exist")
+                 interaction.reply("Le membre est déjà dans la liste des membres ! ")
+                return;
             }
-        }else{
-            console.log("User already exist")
-            await interaction.reply("Le membre est déjà dans la liste des membres ! ")
-            return;
-        }
-    })
-}
+        })
+    }
 };
 
