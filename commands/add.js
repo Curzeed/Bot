@@ -45,7 +45,7 @@ module.exports = {
         // TO DO : Faire une vérification de rôles + ajout de gestion d'erreurs
         
         let resGuilde = interaction.options.getString('guilde');
-        let resUser = interaction.options.getString('membre');
+        let resUser = interaction.options.getString('membre').toLowerCase();
         await membersgdg (function(names){
             if(!names.includes(resUser)){
                 let bdd = mysql.createPool({

@@ -44,7 +44,7 @@ module.exports = {
         .addNumberOption(option => option.setName('points').setDescription('Entrez les points à ajouter').setRequired(true)),
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');
-        let resUser = interaction.options.getString('membre');
+        let resUser = interaction.options.getString('membre').toLowerCase();
         let points = interaction.options.getNumber('points');
 
         await membersgdg(function(names){
