@@ -1,18 +1,12 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const mysql = require('mysql');
-const { host, port, user, password, database} = require('../config.json');
+const db = require('../getConnection');
+const pool = db.getPool();
 const {MessageEmbed} = require("discord.js");
 
 async function membersgdg(callback) {
-    let bdd = mysql.createPool({
-        host : host,
-        user : user,
-        password : password,
-        port : port,
-        database : database,
-    })
+    
     names = [];
-    await bdd.query('SELECT * FROM Eclypsea', function (err, result) {
+    await pool.query('SELECT * FROM Eclypsea', function (err, result) {
         // if any error while executing above query, throw error
         if (err) throw err;
         // if there is no error, you have the result
@@ -22,7 +16,7 @@ async function membersgdg(callback) {
             names.push(row.nom);
         });
     });
-    await  bdd.query('SELECT * FROM Garuroku', function (err, result) {
+    await  pool.query('SELECT * FROM Garuroku', function (err, result) {
         // if any error while executing above query, throw error
         if (err) throw err;
         // if there is no error, you have the result
@@ -50,19 +44,12 @@ module.exports = {
         await membersgdg(async function (names) {
             if (interaction.member.roles.cache.some(role => role.name === 'dev')) {
                 if (names.includes(resUser)) {
-                    let bdd = mysql.createPool({
-                        host: host,
-                        user: user,
-                        password: password,
-                        port: port,
-                        database: database,
-                    })
                     let ptsUser;
                     switch (resGuilde) {
                         case "Garuroku" :
                             try {
-                                bdd.query('UPDATE Garuroku SET score = score + ? WHERE nom=?', [points, resUser]);
-                                bdd.query('SELECT score FROM Garuroku WHERE nom=?;', [resUser], async function (err, rows) {
+                                pool.query('UPDATE Garuroku SET score = score + ? WHERE nom=?', [points, resUser]);
+                                pool.query('SELECT score FROM Garuroku WHERE nom=?;', [resUser], async function (err, rows) {
                                     if (rows === undefined) {
                                         throw (new Error("Error no row defined"))
                                     } else {
@@ -77,8 +64,8 @@ module.exports = {
                             break;
                         case "Eclypsea" :
                             try {
-                                bdd.query('UPDATE Eclypsea SET score = score + ? WHERE nom=?', [points, resUser]);
-                                bdd.query('SELECT score FROM Eclypsea WHERE nom=?;', [resUser], function (err, rows) {
+                                pool.query('UPDATE Eclypsea SET score = score + ? WHERE nom=?', [points, resUser]);
+                                pool.query('SELECT score FROM Eclypsea WHERE nom=?;', [resUser], function (err, rows) {
                                     if (rows === undefined) {
                                         throw (new Error("Error no row defined"))
                                     } else {

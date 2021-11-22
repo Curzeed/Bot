@@ -1,19 +1,12 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const mysql = require('mysql');
-const { host, port, user, password, database} = require('../config.json');
+const db = require('../getConnection');
+const pool = db.getPool();
 const {MessageEmbed} = require("discord.js");
 
 
 async function membersgdg(callback) {
-    let bdd = mysql.createPool({
-        host : host,
-        user : user,
-        password : password,
-        port : port,
-        database : database,
-    })
     names = [];
-    await bdd.query('SELECT * FROM Eclypsea', function (err, result) {
+    await pool.query('SELECT * FROM Eclypsea', function (err, result) {
         // if any error while executing above query, throw error
         if (err) throw err;
         // if there is no error, you have the result
@@ -23,7 +16,7 @@ async function membersgdg(callback) {
             names.push(row.nom);
         });
     });
-    await  bdd.query('SELECT * FROM Garuroku', function (err, result) {
+    await  pool.query('SELECT * FROM Garuroku', function (err, result) {
         // if any error while executing above query, throw error
         if (err) throw err;
         // if there is no error, you have the result
@@ -51,16 +44,9 @@ module.exports = {
 
             if (interaction.member.roles.cache.some(role => role.name === 'dev')) {
                 if(names.includes(resUser)){
-                    let bdd = mysql.createPool({
-                        host : host,
-                        user : user,
-                        password : password,
-                        port : port,
-                        database : database,
-                    })
                     switch(resGuilde){
                         case "Garuroku" : try{
-                            bdd.query('DELETE FROM Garuroku WHERE nom = ?',[resUser]);
+                            pool.query('DELETE FROM Garuroku WHERE nom = ?',[resUser]);
                             interaction.reply(`Suppression du membre ${resUser} avec succès ! `)
                         }catch(error){
                             console.log(error.stack)
@@ -68,7 +54,7 @@ module.exports = {
                         }
                             break;
                         case "Eclypsea" : try{
-                            bdd.query('DELETE FROM Eclypsea WHERE nom = ?',[resUser]);
+                            pool.query('DELETE FROM Eclypsea WHERE nom = ?',[resUser]);
                             interaction.reply(`Suppression du membre ${resUser} avec succès ! `)
                         }catch(error){
                             console.log(error.stack)

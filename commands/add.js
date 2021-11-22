@@ -1,19 +1,13 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const mysql = require('mysql');
-const { host, port, user, password, database} = require('../config.json');
 const {MessageEmbed} = require("discord.js");
-
+const db = require('../getConnection');
+const pool = db.getPool();
 
 async function membersgdg(callback) {
-      let bdd = mysql.createPool({
-        host : host,
-        user : user,
-        password : password,
-        port : port,
-        database : database,                
-    })
+    
 	 names = [];
-	   await bdd.query('SELECT * FROM Eclypsea', function (err, result) {
+	   await pool.query('SELECT * FROM Eclypsea', function (err, result) {
             // if any error while executing above query, throw error
             if (err) throw err;
             // if there is no error, you have the result
@@ -23,7 +17,7 @@ async function membersgdg(callback) {
               names.push(row.nom);
             });
           });
-        await  bdd.query('SELECT * FROM Garuroku', function (err, result) {
+        await  pool.query('SELECT * FROM Garuroku', function (err, result) {
             // if any error while executing above query, throw error
             if (err) throw err;
             // if there is no error, you have the result
@@ -48,17 +42,10 @@ module.exports = {
         await membersgdg (function(names){
             if (interaction.member.roles.cache.some(role => role.name === 'dev')) {
                 if (!names.includes(resUser)) {
-                    let bdd = mysql.createPool({
-                        host: host,
-                        user: user,
-                        password: password,
-                        port: port,
-                        database: database,
-                    })
                     switch (resGuilde) {
                         case "Garuroku" :
                             try {
-                                bdd.query('INSERT INTO Garuroku SET nom = ?', [resUser]);
+                                pool.query('INSERT INTO Garuroku SET nom = ?', [resUser]);
                                 interaction.reply(`Ajout du membre ${resUser} avec succès ! `)
                             } catch (error) {
                                 console.log(error.stack)
@@ -67,7 +54,7 @@ module.exports = {
                             break;
                         case "Eclypsea" :
                             try {
-                                bdd.query('INSERT INTO Eclypsea SET nom = ?', [resUser]);
+                                pool.query('INSERT INTO Eclypsea SET nom = ?', [resUser]);
                                 interaction.reply(`Ajout du membre ${resUser} avec succès ! `)
                             } catch (error) {
                                 console.log(error.stack)

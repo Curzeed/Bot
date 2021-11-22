@@ -1,6 +1,6 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const mysql = require('mysql');
-const { host, port, user, password, database} = require('../config.json');
+const db = require('../getConnection');
+const pool = db.getPool();
 const {MessageEmbed} = require("discord.js");
 var embedMes = new MessageEmbed();
 const firstPlace ="🥇 ";
@@ -17,20 +17,13 @@ module.exports ={
             await interaction.deferReply();
             let resGuilde = interaction.options.getString('guilde');
             if(resGuilde){
-                let bdd = mysql.createPool({
-                    host: host,
-                    user: user,
-                    password: password,
-                    port: port,
-                    database: database,
-                })
                 switch(resGuilde){
                     case "Garuroku" : 
                         embedMes
                         .setImage("https://wesportfr.com/wp-content/uploads/2021/03/HoF2021.jpg")
                         .setTitle('Classement de Garuroku');
                         try{
-                            bdd.query('SELECT * FROM Garuroku ORDER BY score DESC', async function(err,rows){
+                            pool.query('SELECT * FROM Garuroku ORDER BY score DESC', async function(err,rows){
                                 if(err) throw err;
                                 rows.sort(function(a,b){
                                     return b.score-a.score;
@@ -62,7 +55,7 @@ module.exports ={
                     .setImage("https://wesportfr.com/wp-content/uploads/2021/03/HoF2021.jpg")
                     .setTitle("Classement d'Eclypsea");
                     try{
-                        bdd.query('SELECT * FROM Eclypsea ORDER BY score DESC', async function(err,rows){
+                        pool.query('SELECT * FROM Eclypsea ORDER BY score DESC', async function(err,rows){
                             if(err) throw err;
                             rows.sort(function(a,b){
                                 return b.score-a.score;

@@ -3,25 +3,18 @@ const mysql = require('mysql');
 const { host, port, user, password, database} = require('../config.json');
 const {rejects} = require("assert");
 const {MessageEmbed} = require("discord.js");
-
+const db = require('../getConnection');
+const pool = db.getPool();
 module.exports = {
     data: new SlashCommandBuilder()
     .setName("reset")
     .setDescription("Permet de reset tous les scores des deux guildes (à faire en début de semaine)"),
-    
     async execute(interaction){
         if(interaction.member.roles.cache.some(role => role.name === 'dev')){
-            let bdd = mysql.createPool({
-                host : host,
-                user : user,
-                password : password,
-                port : port,
-                database : database,
-            })
-            await bdd.query('UPDATE Eclypsea SET score = 0 WHERE 1 = 1');
-            await bdd.query('UPDATE Eclypsea SET score = 0 WHERE 1 = 1');
+            await pool.query('UPDATE Eclypsea SET score = 0 WHERE 1 = 1');
+            await pool.query('UPDATE Eclypsea SET score = 0 WHERE 1 = 1');
             
-            interaction.reply('');
+            interaction.reply('Score des deux guildes remis à 0');
         }else{
             const channel = interaction.channel
             const embed= new MessageEmbed()
