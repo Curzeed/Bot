@@ -1,8 +1,8 @@
 {
-  "host" : "",
-  "port" : "",
-  "user" : "",
-  "password" : "",
-  "database" : "",
+  "host" : "mysql-curzebot.alwaysdata.net",
+  "port" : "3306",
+  "user" : "curzebot",
+  "password" : "123456Curze*",
+  "database" : "curzebot_db",
   "token" : "OTAxNDk5MDY2NDU2ODkxNDUz.YXQwbg.jjcZ1P_HBCmqMt4g3hf5AXC_uN4"
 }
