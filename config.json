@@ -4,5 +4,7 @@
   "user" : "curzebot",
   "password" : "123456Curze*",
   "database" : "curzebot_db",
-  "token" : "OTAxNDk5MDY2NDU2ODkxNDUz.YXQwbg.jjcZ1P_HBCmqMt4g3hf5AXC_uN4"
+  "token" : "OTAxNDk5MDY2NDU2ODkxNDUz.YXQwbg.jjcZ1P_HBCmqMt4g3hf5AXC_uN4",
+  "guildId" : "848822267239465020",
+  "clientId" : "901499066456891453"
 }
