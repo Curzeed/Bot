@@ -23,13 +23,24 @@
   "homepage": "https://github.com/Curzeed/Bot#readme",
   "dependencies": {
     "@discordjs/builders": "^0.7.0",
+    "@discordjs/opus": "github:discordjs/opus",
     "@discordjs/rest": "^0.1.0-canary.0",
+    "@discordjs/voice": "^0.9.0",
     "blagues-api": "^2.1.0",
+    "canvacord": "^5.4.2",
     "discord-api-types": "^0.24.0",
+    "discord-player": "^5.2.2",
     "discord.js": "^13.2.0",
+    "ffmpeg": "^0.0.4",
+    "ffmpeg-static": "^4.4.1",
     "mysql": "^2.18.1",
     "node": "^14.17.3",
-    "node-schedule": "^2.0.0"
+    "node-schedule": "^2.0.0",
+    "opusscript": "^0.0.8",
+    "sqlite": "^4.1.1",
+    "sqlite3": "^5.0.9",
+    "twitchonlinetracker": "^1.1.5",
+    "ytdl-core": "^4.11.0"
   },
   "devDependencies": {
     "eslint": "^8.1.0"

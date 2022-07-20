@@ -1,73 +1,106 @@
 // Require the necessary discord.js classes
 const { Client, Intents, Collection } = require('discord.js');
-const { token } = require('./config.json');
+const { token, twitch_api_key } = require('./config.json');
 const fs = require('fs');
-const { host, port, user, password, database} = require('./config.json');
-const mysql = require('mysql');
-const bdd = mysql.createConnection({
-	host,port,user,password,database
+const {Player} = require('discord-player');
+const ranking = require('./levels/ranking')
+const {TwitchOnlineTracker} = require('twitchonlinetracker')
+const db = require('./functions/database')
+	const tracker = new TwitchOnlineTracker({
+		client_id : twitch_api_key,
+		track : db.getStreamsTracked(),
+		pollInterval : 30,
+		debug : true,
+		start : true,
+	})
+tracker.on('live', streamData => {
+	console.log(`${streamData.user_name} est en live`)
 })
-
+tracker.on('error')
 // Create a new client instance
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS] });
 
-// Create a new rule for DM in 
-const schedule = require('node-schedule');
-const galrok = client.users.cache.get("193432989177217024");
-const rule = new schedule.RecurrenceRule();
-rule.dayOfWeek = [1, new schedule.Range(3,5)]
-rule.hour = 14;
-// Création d'une collection à l'instance du client
 client.commands = new Collection();
+// system of leveling
+ranking(client)
+const commandFolders = fs.readdirSync('./commands');
 
-// Lecture du fichier en question demandé par le client
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const player = new Player(client);
 
-for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	// Set a new item in the Collection
-	// With the key as the command name and the value as the exported module
-	client.commands.set(command.data.name, command);
+player.on('error', (queue, error) => {
+	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
+  });
+  
+  player.on('connectionError', (queue, error) => {
+	console.log(`[${queue.guild.name}] Error emitted from the connection: ${error.message}`);
+  });
+  
+  player.on('trackStart', (queue, track) => {
+	queue.metadata.send(`▶ | Started playing: **${track.title}** in **${queue.connection.channel.name}**!`);
+  });
+  
+  player.on('trackAdd', (queue, track) => {
+	queue.metadata.send(`🎶 | Track **${track.title}** queued!`);
+  });
+  
+  player.on('botDisconnect', queue => {
+	queue.metadata.send('❌ | I was manually disconnected from the voice channel, clearing queue!');
+  });
+  
+  player.on('channelEmpty', queue => {
+	queue.metadata.send('❌ | Nobody is in the voice channel, leaving...');
+  });
+  
+  player.on('queueEnd', queue => {
+	queue.metadata.send('✅ | Queue finished!');
+  });
+
+for (const folder of commandFolders) {
+	const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+	for (const file of commandFiles) {
+		const command = require(`./commands/${folder}/${file}`);
+		client.commands.set(command.data.name, command);
+	}
 }
+
 
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
 	console.log('Je suis lancé!');
 });
-
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
 
 	const command = client.commands.get(interaction.commandName);
 
 	if (!command) return;
-
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		await interaction.reply({ content: 'Une erreur a été détectée lors de la commande', ephemeral: true });
-	}
+	if (interaction.commandName == 'skip' ||interaction.commandName == 'play'|| interaction.commandName == 'resume' || interaction.commandName == 'queue' 
+	|| interaction.commandName == 'purge' || interaction.commandName == 'loop' || interaction.commandName == 'leave' || interaction.commandName == 'pause' 
+	|| interaction.commandName == 'actual' ){
+		await command.execute(interaction, player)
+	}else{
+		try {
+			await command.execute(interaction);
+		} catch (error) {
+			console.error(error);
+			await interaction.reply({ content: 'Une erreur a été détectée lors de la commande', ephemeral: true });
+		}
+	}	
 });
 
 client.on('messageCreate', async message => {
-	console.log('e');
 	let msg = message.content;
 		try{
-			if(msg.endsWith('quoi')){
-				msg.reply("feur");
-			}else{
-				return;
-			}
-
+			if(msg.endsWith('quoi') | msg.trim().endsWith('quoi?')){
+				message.reply("feur");
+			}else{return;}
 			}catch(error){
 				console.log(error);
-				await msg.reply({ content : 'Une erreur a été détectée dans la lecture du message', ephemeral:true});
+				await message.reply({ content : 'Une erreur a été détectée dans la lecture du message', ephemeral:true});
 		}
+		
 });
-//const job = schedule.scheduleJob("MpGalrok",rule,function(){
-//	galrok.send("Va faire les scores flemmard");
-//})
+
 
 // Login to Discord with your client's token
 client.login(token);

@@ -1,10 +1,14 @@
 {
     "token":"OTAxNDk5MDY2NDU2ODkxNDUz.YXQwbg.jjcZ1P_HBCmqMt4g3hf5AXC_uN4",
-    "guildId": "848822267239465020",
+    "guildId": "917843440807596072",
     "clientId": "901499066456891453",
     "host" : "mysql-curzebot.alwaysdata.net",
     "port" : "3306",
     "user" : "curzebot_admin",
     "password" : "123Curze*",
-    "database" : "curzebot_db"
+    "database" : "curzebot_db",
+    "twitch_api_key" : "a4hzqvd7xeczygfirokx9qg951w2aw",
+    "custom" : {
+        "levelUpText" : ""
+    }
 }
