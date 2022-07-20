@@ -1,3 +1,4 @@
+--- WORK IN PROGRESS ---
 # Bot discord Nox
 Nox est un bot discord réalisé en Node.js avec des librairies pour simplifier le développement (canvacord, discord-player) et développé sous Discord.js V13.
 
