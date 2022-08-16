@@ -13,6 +13,12 @@ module.exports = {
         if(!func.isMod(interaction)){
             return await interaction.reply({embeds : [func.notMod(interaction)]})  
         }
-             
+        try{
+            db.addStreamTracked(streamer);
+        }catch(err){
+            console.error("Error during streamPing : " + err)
+            return interaction.reply("Un problème a été détecté durant l'insertion")
+        }
+        return interaction.reply(`Le streamer : ${streamer} a bien été ajouté !`)  
     }
 }

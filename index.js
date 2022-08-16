@@ -1,22 +1,31 @@
 // Require the necessary discord.js classes
+// const db = require('./functions/database')
 const { Client, Intents, Collection } = require('discord.js');
 const { token, twitch_api_key } = require('./config.json');
 const fs = require('fs');
 const {Player} = require('discord-player');
 const ranking = require('./levels/ranking')
 const {TwitchOnlineTracker} = require('twitchonlinetracker')
-const db = require('./functions/database')
-	const tracker = new TwitchOnlineTracker({
-		client_id : twitch_api_key,
-		track : db.getStreamsTracked(),
-		pollInterval : 30,
-		debug : true,
-		start : true,
-	})
-tracker.on('live', streamData => {
-	console.log(`${streamData.user_name} est en live`)
-})
-tracker.on('error')
+
+// var streamers =[]
+// db.getStreamsTracked((user)=> {
+// 	console.log(user)
+// 	streamers.push(user)
+// })
+// console.log(streamers)
+// const tracker = new TwitchOnlineTracker({
+// 	client_id : twitch_api_key,
+// 	track : streamers,
+// 	pollInterval : 30,
+// 	debug : true,
+// 	start : true,
+// 	})
+// console.log(tracker)	
+// tracker.on('live', streamData => {
+// 	console.log(streamData)
+// 	console.log(`${streamData.user_name} est en live`)
+// })
+
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS] });
 

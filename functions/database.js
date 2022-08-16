@@ -95,6 +95,7 @@ module.exports = {
         `SELECT * FROM Users ORDER BY level DESC,currentXp DESC`
       ,(err,rows) => {
         if (err){
+          console.log(rows)
           console.log("Error on Select during rank : \n" + err)
         }
         callback(rows)
@@ -103,12 +104,12 @@ module.exports = {
     /**
      * 
      */
-    getStreamsTracked : function (){
+    getStreamsTracked : async function (callback){
       db.all(
         `SELECT * FROM streamsTracked `,
         (err,rows) => {
           if(err) throw err;
-          return rows;
+          callback(rows);
         }
       )
     },
